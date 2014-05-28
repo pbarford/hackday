@@ -1,8 +1,6 @@
-/**
- * Created by paulo on 28/05/14.
- */
-class JsonSlurper {
+package hackday
 
+class HtmlScraper {
     def prefix = "/home/paulo/code/github/hackday/src/groovy/"
 
     def readFile(file) {
@@ -10,7 +8,7 @@ class JsonSlurper {
     }
 
     def processMarket(eventName, marketName) {
-        "{ \"name\" : \"" + marketName +"\", " + generateSelections(prefix + eventName + "-" + marketName + ".html") + "}"
+        "{\"id\" : \"" + generateId() + "\", \"name\" : \"" + marketName +"\", " + generateSelections(prefix + eventName + "-" + marketName + ".html") + "}"
     }
 
     def generateSelections(selectionFile) {
@@ -27,15 +25,19 @@ class JsonSlurper {
             }
             if(price!="") {
                 if(!first) json+=","
-                json += "{ \"name\" : \"" + selectionName +"\", \"price\" : " + price + "}"
+                json += "{ \"id\" : \"" + generateId() +"\", \"name\" : \"" + selectionName +"\", \"price\" : " + price + "}"
                 first = false
             }
         }
         json += "]"
     }
 
+    def generateId() {
+        UUID.randomUUID().toString()
+    }
+
     def processEvent(eventName, epochStartTime) {
-        def json = "{ \"name\" : \"" + eventName + "\", \"time\" : " + epochStartTime + ", \"markets\" : ["
+        def json = "{ \"id\" : \"" + generateId() + "\", \"name\" : \"" + eventName + "\", \"time\" : " + epochStartTime + ", \"markets\" : ["
         json += processMarket(eventName, "win-draw-win") + ","
         json += processMarket(eventName, "first-goalscorer") + ","
         json += processMarket(eventName, "correct-score")
@@ -44,17 +46,11 @@ class JsonSlurper {
 
     def processEvents() {
         def json = "{ \"events\" : ["
-        json += processEvent("brazil-croatia", 1402606800000) + ","
+        //json += processEvent("brazil-croatia", 1402606800000) + ","
         json += processEvent("mexico-cameroon", 1402678800000)+ ","
         json += processEvent("spain-holland", 1402689600000) + ","
         json += processEvent("chile-australia", 1402700400000)
         json += "]}"
-    }
-
-    public static void main(String[] args) {
-        def slurper = new JsonSlurper();
-
-        println(slurper.processEvents())
     }
 
 }
